@@ -1,0 +1,18 @@
+baseURL = "http://192.168.1.139:8082/"
+languageCode = "es-ES"
+title = "Blog Familiar"
+theme = "familia"
+defaultContentLanguage = "es"
+
+[params]
+  description = "Nuestro blog familiar"
+  author = "La Familia"
+
+[markup]
+  [markup.goldmark]
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[taxonomies]
+  category = "categories"
+  tag = "tags"

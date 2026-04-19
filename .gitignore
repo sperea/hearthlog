@@ -1,0 +1,6 @@
+.env
+nginx/auth.htpasswd
+blog-content/public/
+backups/
+__pycache__/
+*.pyc

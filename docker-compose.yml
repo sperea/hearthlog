@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+  blog:
+    image: nginx:alpine
+    container_name: blog-familiar
+    restart: unless-stopped
+    ports:
+      - "8082:80"
+    volumes:
+      - ./blog-content/public:/usr/share/nginx/html:ro
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx:/etc/nginx/auth:ro
+    depends_on:
+      hugo-init:
+        condition: service_completed_successfully
+    networks:
+      - blog-network
+
+  hugo-init:
+    image: klakegg/hugo:ext-alpine
+    container_name: hugo-init
+    volumes:
+      - ./blog-content:/src
+    working_dir: /src
+    command: ["hugo", "--minify"]
+    networks:
+      - blog-network
+
+  hugo-generator:
+    image: klakegg/hugo:ext-alpine
+    container_name: hugo-generator
+    restart: unless-stopped
+    volumes:
+      - ./blog-content:/src
+    working_dir: /src
+    command: ["hugo", "server", "--watch", "--bind", "0.0.0.0", "--disableFastRender"]
+    networks:
+      - blog-network
+
+  api-bot:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: hearthlog-api
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./blog-content:/blog-content
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - AI_BOT_API_TOKEN=${AI_BOT_API_TOKEN}
+      - HUGO_CONTAINER=hugo-generator
+      - BLOG_CONTENT_PATH=/blog-content
+    networks:
+      - blog-network
+
+  htpasswd-gen:
+    image: httpd:alpine
+    container_name: htpasswd-gen
+    restart: "no"
+    volumes:
+      - ./nginx:/output
+    environment:
+      - BLOG_PASSWORD=${BLOG_PASSWORD}
+    command: >
+      sh -c "htpasswd -Bbn familia $$BLOG_PASSWORD > /output/auth.htpasswd && echo 'htpasswd generated'"
+    networks:
+      - blog-network
+
+networks:
+  blog-network:
+    driver: bridge

@@ -1,0 +1,5 @@
+name = "Familia"
+license = "MIT"
+licenselink = ""
+description = "Tema para blog familiar"
+min_version = "0.80.0"
