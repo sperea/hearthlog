@@ -57,23 +57,27 @@ def process_image(data: bytes, filename: str) -> bytes:
     return out.getvalue()
 
 
-def save_photo(photo: dict, images_dir: Path) -> str | None:
-    filename = photo.get("filename", "")
+def save_photo(photo: dict, images_dir: Path) -> tuple[str, None] | tuple[None, str]:
+    filename = photo.get("filename", "") or "unknown"
     b64_data = photo.get("data", "")
-    if not filename or not b64_data:
-        return None
+    if not b64_data:
+        return None, f"'{filename}': no data provided"
     try:
         raw = base64.b64decode(b64_data)
+        size_mb = len(raw) / (1024 * 1024)
         if len(raw) > MAX_PHOTO_SIZE_MB * 1024 * 1024:
-            logger.warning("Photo %s exceeds %dMB, skipping", filename, MAX_PHOTO_SIZE_MB)
-            return None
+            logger.warning("Photo %s exceeds %dMB (%.1fMB), skipping", filename, MAX_PHOTO_SIZE_MB, size_mb)
+            return None, (
+                f"'{filename}' exceeds {MAX_PHOTO_SIZE_MB}MB limit "
+                f"(actual: {size_mb:.1f}MB). Resize to max 1920px, quality 85%."
+            )
         processed = process_image(raw, filename)
         dest_name = f"{slugify(Path(filename).stem)}.jpg"
         (images_dir / dest_name).write_bytes(processed)
-        return dest_name
+        return dest_name, None
     except Exception as e:
         logger.error("Failed to process photo %s: %s", filename, e)
-        return None
+        return None, f"'{filename}': processing error — {e}"
 
 
 def build_markdown(title: str, date: str, content: str, saved_photos: list[str], date_slug: str, draft: bool = False) -> str:
@@ -179,10 +183,11 @@ def create_post():
 
     saved_photos, failed_photos = [], []
     for photo in photos:
-        saved = save_photo(photo, images_dir)
-        (saved_photos if saved else failed_photos).append(
-            saved or photo.get("filename", "unknown")
-        )
+        saved, error = save_photo(photo, images_dir)
+        if saved:
+            saved_photos.append(saved)
+        else:
+            failed_photos.append(error)
 
     slug = slugify(title)
     post_filename = f"{date_str}-{slug}.md"
@@ -240,10 +245,11 @@ def update_post(slug: str):
 
     saved_photos, failed_photos = [], []
     for photo in photos:
-        saved = save_photo(photo, images_dir)
-        (saved_photos if saved else failed_photos).append(
-            saved or photo.get("filename", "unknown")
-        )
+        saved, error = save_photo(photo, images_dir)
+        if saved:
+            saved_photos.append(saved)
+        else:
+            failed_photos.append(error)
 
     post.write_text(
         build_markdown(title, date_str, content_new, saved_photos, date_str, draft=was_draft),
