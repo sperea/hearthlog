@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="{{ .Site.LanguageCode | default "es" }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -7,16 +7,19 @@
   <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="/" class="site-title">🏠 {{ .Site.Title }}</a>
-    </nav>
+  <header class="site-header">
+    <div class="header-inner">
+      <a href="/" class="site-name">{{ .Site.Title }}</a>
+      <span class="site-subtitle">diario familiar</span>
+    </div>
   </header>
-  <main>
+
+  <main class="site-main">
     {{ block "main" . }}{{ end }}
   </main>
-  <footer>
-    <p>{{ .Site.Params.description }}</p>
+
+  <footer class="site-footer">
+    {{ .Site.Title }} · {{ now.Format "2006" }}
   </footer>
 </body>
 </html>

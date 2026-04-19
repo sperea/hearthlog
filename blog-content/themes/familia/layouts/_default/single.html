@@ -1,26 +1,25 @@
 {{ define "main" }}
-<article class="post">
+<article>
   <header class="post-header">
-    <h1>{{ .Title }}</h1>
-    <time>{{ .Date.Format "2 January 2006" }}</time>
-    {{ with .Params.categories }}
-    <div class="categories">
-      {{ range . }}<span class="category">{{ . }}</span>{{ end }}
-    </div>
-    {{ end }}
+    <p class="post-date">{{ .Date.Format "2 January 2006" }}</p>
+    <h1 class="post-title">{{ .Title }}</h1>
   </header>
 
-  {{ if .Params.featured_image }}
-  <img src="{{ .Params.featured_image }}" alt="{{ .Title }}" class="featured-image" loading="lazy">
+  {{ with .Params.featured_image }}
+  <img class="post-featured" src="{{ . }}" alt="{{ $.Title }}" loading="lazy">
   {{ end }}
 
-  <div class="post-content">
+  <div class="post-body">
     {{ .Content }}
   </div>
 
   <nav class="post-nav">
-    {{ with .PrevInSection }}<a href="{{ .Permalink }}">← {{ .Title }}</a>{{ end }}
-    {{ with .NextInSection }}<a href="{{ .Permalink }}" style="float:right">{{ .Title }} →</a>{{ end }}
+    {{ with .PrevInSection }}
+    <a href="{{ .Permalink }}">← {{ .Title }}</a>
+    {{ else }}<span></span>{{ end }}
+    {{ with .NextInSection }}
+    <a href="{{ .Permalink }}">{{ .Title }} →</a>
+    {{ end }}
   </nav>
 </article>
 {{ end }}

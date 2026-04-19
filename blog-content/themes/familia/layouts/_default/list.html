@@ -1,21 +1,16 @@
 {{ define "main" }}
-<div class="list-page">
-  <h1>{{ .Title }}</h1>
-  <div class="posts-grid">
-    {{ range .Pages }}
-    <article class="post-card">
-      {{ if .Params.featured_image }}
-      <a href="{{ .Permalink }}">
-        <img src="{{ .Params.featured_image }}" alt="{{ .Title }}" loading="lazy">
-      </a>
-      {{ end }}
-      <div class="post-card-body">
-        <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-        <time>{{ .Date.Format "2 January 2006" }}</time>
-        <p>{{ .Summary }}</p>
-      </div>
-    </article>
-    {{ end }}
-  </div>
-</div>
+<h1 class="post-title" style="margin-bottom:2rem">{{ .Title }}</h1>
+{{ if .Pages }}
+<ul class="post-list">
+  {{ range .Pages }}
+  <li class="post-list-item">
+    <p class="post-date">{{ .Date.Format "2 January 2006" }}</p>
+    <h2 class="post-list-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+    {{ with .Summary }}<p class="post-summary">{{ . }}</p>{{ end }}
+  </li>
+  {{ end }}
+</ul>
+{{ else }}
+<div class="empty"><p>No hay entradas en esta sección.</p></div>
+{{ end }}
 {{ end }}

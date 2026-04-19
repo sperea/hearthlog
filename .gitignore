@@ -1,6 +1,8 @@
 .env
 nginx/auth.htpasswd
 blog-content/public/
+blog-content/static/images/
+blog-content/.hugo_build.lock
 backups/
 __pycache__/
 *.pyc

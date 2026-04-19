@@ -3,11 +3,13 @@ import logging
 
 logger = logging.getLogger(__name__)
 
+HUGO_SOURCE = "/blog-content"
 
-def rebuild_site(container_name: str = "hugo-generator") -> tuple[bool, str]:
+
+def rebuild_site(_container_name: str = None) -> tuple[bool, str]:
     try:
         result = subprocess.run(
-            ["docker", "exec", container_name, "hugo", "--minify"],
+            ["hugo", "--minify", "--source", HUGO_SOURCE],
             capture_output=True,
             text=True,
             timeout=60,
@@ -20,6 +22,6 @@ def rebuild_site(container_name: str = "hugo-generator") -> tuple[bool, str]:
     except subprocess.TimeoutExpired:
         return False, "Hugo build timed out after 60s"
     except FileNotFoundError:
-        return False, "docker CLI not found in container"
+        return False, "hugo binary not found"
     except Exception as e:
         return False, str(e)

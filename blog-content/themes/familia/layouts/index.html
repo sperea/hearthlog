@@ -1,22 +1,23 @@
 {{ define "main" }}
-<div class="home">
-  <h1>Últimas entradas</h1>
-  <div class="posts-grid">
-    {{ range .Pages }}
-    <article class="post-card">
-      {{ if .Params.featured_image }}
-      <a href="{{ .Permalink }}">
-        <img src="{{ .Params.featured_image }}" alt="{{ .Title }}" loading="lazy">
-      </a>
-      {{ end }}
-      <div class="post-card-body">
-        <h2><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
-        <time>{{ .Date.Format "2 January 2006" }}</time>
-        <p>{{ .Summary }}</p>
-        <a href="{{ .Permalink }}" class="read-more">Leer más →</a>
-      </div>
-    </article>
+{{ $pages := where .Site.RegularPages "Type" "posts" }}
+{{ if $pages }}
+<ul class="post-list">
+  {{ range $pages }}
+  <li class="post-list-item">
+    {{ if .Params.featured_image }}
+    <a href="{{ .Permalink }}">
+      <img class="post-thumb" src="{{ .Params.featured_image }}" alt="{{ .Title }}" loading="lazy">
+    </a>
     {{ end }}
-  </div>
+    <p class="post-date">{{ .Date.Format "2 January 2006" }}</p>
+    <h2 class="post-list-title"><a href="{{ .Permalink }}">{{ .Title }}</a></h2>
+    {{ with .Summary }}<p class="post-summary">{{ . }}</p>{{ end }}
+  </li>
+  {{ end }}
+</ul>
+{{ else }}
+<div class="empty">
+  <p>Aún no hay entradas.</p>
 </div>
+{{ end }}
 {{ end }}

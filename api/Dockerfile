@@ -1,6 +1,6 @@
 FROM python:3.11-alpine
 
-RUN apk add --no-cache docker-cli
+RUN apk add --no-cache hugo
 
 WORKDIR /app
 
