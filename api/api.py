@@ -145,12 +145,14 @@ def get_post(slug: str):
     if not post:
         return jsonify({"error": "Post not found"}), 404
     text = post.read_text(encoding="utf-8")
+    parts = text.split("---", 2)
+    body = parts[2].lstrip("\n") if len(parts) >= 3 else text
     return jsonify({
         "slug": slug,
         "title": parse_frontmatter_field(text, "title") or "",
         "date": parse_frontmatter_field(text, "date") or "",
         "draft": "draft: true" in text,
-        "content": text,
+        "content": body,
     })
 
 
